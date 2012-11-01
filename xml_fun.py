@@ -19,7 +19,7 @@ class xml_parser():
 		index = str(urllib2.urlopen(url_string).read())
 		xml_soup = BeautifulSoup(index, 'xml', from_encoding="iso-8859-1")
 		print xml_soup.item
-		for x in self.items:
+		for x in xml_soup.items:
 			print '\n\n\n\nin self.items loop'
 			title = str(x.title)
 			price = ''
