@@ -18,7 +18,7 @@ class xml_parser():
 		url_string = ''.join(string_list)
 		index = str(urllib2.urlopen(url_string).read())
 		xml_soup = BeautifulSoup(index, 'xml', from_encoding="iso-8859-1")
-		print xml_soup.item
+		#print xml_soup.item
 		for x in xml_soup.items:
 			print '\n\n\n\nin self.items loop'
 			title = str(x.title)
