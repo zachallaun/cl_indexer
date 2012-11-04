@@ -2,6 +2,22 @@ import sched, time, io
 import urllib2
 from using_dom import xml_parser
 
+nabe_list = [
+			'Williamsburg',
+			'Bushwick',
+			'Greenpoint',
+			'Park Slope',
+			'Fort Green', #misspelling will catch the correct one too...#megabonus
+			'Prospect Heights',
+			'Crown Heights',
+			'Clinton Hill',
+			'DUMBO',
+			'Bed-Stuy',
+			'BedStuy',
+			'Bedford-Stuyvesant',
+			]
+
+
 
 class fetch_cl_data():
 
@@ -27,10 +43,8 @@ class fetch_cl_data():
 	def get_cl_data(self):
 		s = sched.scheduler
 		parser = xml_parser('index.rss')
-		parser.find_by_hood('Williamsburg')
-		parser.find_by_hood('Bushwick')
-		parser.find_by_hood('Park Slope')
-
+		for item in nabe_list:
+			parser.find_by_hood(item)
 
 tester = fetch_cl_data()
 tester.write_data()
