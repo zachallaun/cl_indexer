@@ -2,6 +2,7 @@ import sched, time, io
 import urllib2
 from using_dom import xml_parser
 
+#global list of neighborhood names to track
 nabe_list = [
 			'Williamsburg',
 			'Bushwick',
@@ -25,7 +26,6 @@ class fetch_cl_data():
 		pass
 
 	#def event_scheduler(self):
-
 
 	#pings the craigslist rss url, writes the data to a file
 	#defaulted to the cl brooklyn url
