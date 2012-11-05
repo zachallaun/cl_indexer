@@ -1,6 +1,7 @@
 import sched, time, io
 import urllib2
 from bs4 import BeautifulSoup
+import sqlite3
 #global list of neighborhood names to track
 NEIGHBORHOOD_LIST = [
 			'Williamsburg',
@@ -21,7 +22,7 @@ NEIGHBORHOOD_LIST = [
 			]
 
 
-class fetch_cl_data():
+class cl_data_parser():
 
 	def __init__(self):
 		pass
@@ -41,16 +42,16 @@ class fetch_cl_data():
 
 
 
-	def get_cl_data(self):
+	def parse_data(self):
 		in_stream = open('index.rss', 'rt').read()
 		items = BeautifulSoup(in_stream, 'xml').findAll('item')
-		for listing in items:
-			title = str(listing.title)
+		for item in items:
+			title = str(item.title)
 			index = title.find('(')
-			if index == -1: break #error check if there is no parens for the neighborhood
-			title = title[index:] #slice the string at the opening paren
-			url = listing.link.string
-			list_for_item = self.make_list(title, url)
+			if index != -1: #error check if there is no parens for the neighborhood
+				title = title[index:] #slice the string at the opening paren
+				url = item.link.string
+				list_for_item = self.make_list(title, url)
 
 	def make_list(self, item, url):
 		list_for_item = []
@@ -61,37 +62,41 @@ class fetch_cl_data():
 		print list_for_item
 
 	#loops through nabe list to check if any appear in the item
-	def find_nabe(self, string):
+	def find_nabe(self, item):
 		neighborhoods_in_item = []
 		for neighborhood in NEIGHBORHOOD_LIST:
-			if string.find(neighborhood) != -1 or string.find(neighborhood.lower()) != -1:
+			if item.find(neighborhood) != -1 or item.find(neighborhood.lower()) != -1 or item.find(neighborhood.upper()) != -1:
 				neighborhoods_in_item.append(neighborhood)
 		return neighborhoods_in_item
 
-	def find_price(self, string):
+	def find_price(self, item):
 		price = ''
-		index = string.find('$')
-		string = string[index:]
-		for i in range(4):
-			if string[i].isdigit():
-				price += (string[i])
+		index = item.find('$')
+		if index != -1:
+			item = item[index:]
+			for i in range(5):
+				if item[i + 1].isdigit():
+					price += item[i + 1]
 		return price
 
 
 
-	def find_bedrooms(self, string):
+	def find_bedrooms(self, item):
 		bedrooms = ''
-		index = string.find('$')
-		string = string[index:]
-		index = string.find('bd')
+		index = item.find('$')
+		item = item[index:]
+		index = item.find('bd')
 		if index != -1:
-			bedrooms = string[index -1]
+			bedrooms = item[index -1]
 		return bedrooms
 
 
 
 
 
-tester = fetch_cl_data()
-tester.write_data()
-tester.get_cl_data()
+parser = cl_data_parser()
+parser.write_data()
+parser.parse_data()
+conn = sqlite3.connect('test_db.db')
+conn.close()
+
