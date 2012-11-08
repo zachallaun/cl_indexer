@@ -2,6 +2,8 @@ import sched, time, io
 import urllib2
 from bs4 import BeautifulSoup
 import sqlite3
+import datetime
+
 #global list of neighborhood names to track
 NEIGHBORHOOD_LIST = [
 			'Williamsburg',
@@ -59,7 +61,14 @@ class cl_data_parser():
 		list_for_item.append(self.find_nabe(item))
 		list_for_item.append(self.find_price(item))
 		list_for_item.append(self.find_bedrooms(item))
-		print list_for_item
+		list_for_item.append(datetime.date)
+		url = str(list_for_item[0])
+		neighborhood = str(list_for_item[1])
+		price = list_for_item[2]
+		bedrooms = list_for_item[3]
+		now = datetime.datetime.now()
+		test_tuple = (url, neighborhood, price, bedrooms, now)
+		conn.execute('INSERT INTO listings VALUES(?,?,?,?,?)', test_tuple) 
 
 	#loops through nabe list to check if any appear in the item
 	def find_nabe(self, item):
@@ -93,10 +102,14 @@ class cl_data_parser():
 
 
 
-
+conn = sqlite3.connect('test_db.db')
+cursor = conn.cursor()
+cursor.execute(''' drop table if exists listings ''')
+cursor.execute(''' CREATE TABLE listings
+					(url text, neighborhood text, price integer, bedrooms integer, today integer )''')
 parser = cl_data_parser()
 parser.write_data()
 parser.parse_data()
-conn = sqlite3.connect('test_db.db')
+conn.commit()
 conn.close()
 
