@@ -51,7 +51,7 @@ def run_scheduler():
 		write_data()
 		parse_data()
 		print 'iteration number: ', x
-		time.sleep(10)
+		time.sleep(3600)
 		x += 1
 
 #pings the craigslist rss url, writes the data to a file
