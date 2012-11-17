@@ -3,3 +3,4 @@
 *.pyc
 test_db.db
 description_tester.py
+housing_key.pem
