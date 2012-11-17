@@ -32,9 +32,14 @@ def get_price_by_neighborhood(price, input_hood):
 	items =  conn.execute('SELECT listing.url, listing.price, neighborhood.name from listing, list_to_neighborhood, neighborhood WHERE listing.price < (?) AND listing.id = list_to_neighborhood.listing_id AND neighborhood.id = list_to_neighborhood.neighborhood_id AND neighborhood.name = (?)', (price, input_hood)).fetchall()
 	return items
 
+def get_br_by_neighborhood(input_brs, input_hood):
+	items = conn.execute('SELECT listing.url, listing.price, listing.bedrooms, neighborhood.name from listing, list_to_neighborhood, neighborhood WHERE listing.bedrooms = (?) AND listing.id = list_to_neighborhood.listing_id AND neighborhood.id = list_to_neighborhood.neighborhood_id AND neighborhood.name = (?)', (input_brs, input_hood)).fetchall()
+	for item in items:
+		print '\n\n', item
+		
 conn = sqlite3.connect(DATABASE)
-print 'Enter price:'
+print 'Enter brs:'
 price = raw_input('>>  ')
 print '\nEnter neighborhood: '
 hood = raw_input('>> ')
-get_price_by_neighborhood(price, hood)
+get_br_by_neighborhood(price, hood)
