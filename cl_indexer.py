@@ -133,7 +133,6 @@ def find_bedrooms(item):
 
 if __name__ == '__main__':
     conn = sqlite3.connect('housing.db')
-    cursor = conn.cursor()
     run_scheduler()
     conn.commit()
     conn.close()
