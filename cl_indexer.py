@@ -44,11 +44,9 @@ NEIGHBORHOOD_LIST = [
 CL_URL = 'http://newyork.craigslist.org/brk/aap/index.rss'
 
 def run_scheduler():
-    x = 0
+    print "Running craigslist scraper..."
     write_data()
     parse_data()
-    print 'iteration number: ', x
-    x += 1
 
 #pings the craigslist rss url, writes the data to a file
 #defaulted to the cl brooklyn url
