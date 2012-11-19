@@ -43,6 +43,15 @@ NEIGHBORHOOD_LIST = [
 
 CL_URL = 'http://newyork.craigslist.org/brk/aap/index.rss'
 
+def select(conn, attr, table, **kv):
+    criterion, val = kv.items()[0]
+    command = "SELECT {} FROM {} WHERE {}=(?)".format(attr, table, criterion)
+    return conn.execute(command, (val,))
+
+def insert(conn, table, values):
+    qs = '(?' + (",?" * (len(values) - 1)) + ')'
+    conn.execute("INSERT INTO {} VALUES{}".format(table, qs), values)
+
 def run_scheduler():
     print "Running craigslist scraper..."
     parse_data(pull_data())
@@ -68,13 +77,8 @@ def make_listing(sql_id, url, title, description, neighborhood, price, bedrooms)
     if not get_by_url(url) and neighborhood and price and bedrooms != -1:
         print "Inserting {}...".format(url)
         listing = (sql_id, url, price, bedrooms, title, description, datetime.now())
-        conn.execute('INSERT INTO listing VALUES(?,?,?,?,?,?,?)', listing)
+        insert(conn, "listing", listing)
         insert_relation(url, neighborhood)
-
-def select(conn, attr, table, **kv):
-    criterion, val = kv.items()[0]
-    command = "SELECT {} FROM {} WHERE {}=(?)".format(attr, table, criterion)
-    return conn.execute(command, (val,))
 
 #inserts into the relation table 'list_to_neighborhood' by finding the url
 #handles the case of multiple neighborhood in the current_neighborhoods parameter
@@ -83,7 +87,7 @@ def insert_relation(current_url, current_neighborhoods):
     listing_id = select(conn, "id", "listing", url=current_url).fetchone()
     for item in current_neighborhoods:
         neighborhood_id = select(conn, "id", "neighborhood", name=item).fetchone()
-        conn.execute('INSERT INTO list_to_neighborhood VALUES(?,?)', (listing_id[0], neighborhood_id[0]))
+        insert(conn, "list_to_neighborhood", (listing_id[0], neighborhood_id[0]))
 
 
 def get_by_url(url):
