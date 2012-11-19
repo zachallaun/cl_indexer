@@ -111,11 +111,13 @@ def find_price(item):
     if index != -1:
         item = item[index + 1:]
         for i in range(5):
-            if i >= len(item): break
-            elif not(item[i].isdigit()): break
-    else:
-        price += item[i]
-        return price
+            if i >= len(item):
+                break
+            elif not(item[i].isdigit()):
+                break
+            else:
+                price += item[i]
+                return price
 
 
 #clumsy function that slices twice, but little alternative because of messy CL XML where the
