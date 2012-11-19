@@ -2,7 +2,7 @@ import sched, time, io
 import urllib2
 from bs4 import BeautifulSoup
 import sqlite3
-import datetime
+from datetime import datetime
 
 #global list of neighborhood names to track
 NEIGHBORHOOD_LIST = [
@@ -61,20 +61,15 @@ def parse_data(data):
         if index != -1: #error check if there is no parens for the neighborhood
             br_info = title[index:] #slice the string at the opening paren
             url = item.link.string
-            make_listing(br_info, url, title, description)
+            attrs = map(lambda f: f(br_info), [find_nabe, find_price, find_bedrooms])
+            make_listing(None, url, title, description, *attrs)
 
-def make_listing(item, url, title, description):
-    if not (get_by_url(url)): #if the url doesn't exists in the db, we go forward
-        sql_id = None
-        neighborhood = find_nabe(item) #have to cast to str for db commit
-        price = find_price(item)
-        bedrooms = find_bedrooms(item)
-        now = datetime.datetime.now()
-        if (neighborhood and price and bedrooms != -1): #tossing incomplete data
-            print "Inserting {}...".format(url)
-            listing = (sql_id, url, price, bedrooms, title, description, now)
-            conn.execute('INSERT INTO listing VALUES(?,?,?,?,?,?,?)', listing)
-            insert_relation(url, neighborhood)
+def make_listing(sql_id, url, title, description, neighborhood, price, bedrooms):
+    if not get_by_url(url) and neighborhood and price and bedrooms != -1:
+        listing = (sql_id, url, price, bedrooms, title, description, datetime.now())
+        conn.execute('INSERT INTO listing VALUES(?,?,?,?,?,?,?)', listing)
+        insert_relation(url, neighborhood)
+
 
 #inserts into the relation table 'list_to_neighborhood' by finding the url
 #handles the case of multiple neighborhood in the current_neighborhoods parameter
@@ -124,6 +119,3 @@ if __name__ == '__main__':
     run_scheduler()
     conn.commit()
     conn.close()
-
-
-
