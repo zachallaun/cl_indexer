@@ -66,27 +66,32 @@ def parse_data(data):
 
 def make_listing(sql_id, url, title, description, neighborhood, price, bedrooms):
     if not get_by_url(url) and neighborhood and price and bedrooms != -1:
+        print "Inserting {}...".format(url)
         listing = (sql_id, url, price, bedrooms, title, description, datetime.now())
         conn.execute('INSERT INTO listing VALUES(?,?,?,?,?,?,?)', listing)
         insert_relation(url, neighborhood)
 
+def select(conn, attr, table, **kv):
+    criterion, val = kv.items()[0]
+    command = "SELECT {} FROM {} WHERE {}=(?)".format(attr, table, criterion)
+    return conn.execute(command, (val,))
 
 #inserts into the relation table 'list_to_neighborhood' by finding the url
 #handles the case of multiple neighborhood in the current_neighborhoods parameter
 #by looping through and inserting a new relation for each one
 def insert_relation(current_url, current_neighborhoods):
-    listing_id = conn.execute('SELECT id from listing where url=(?)',(current_url,)).fetchone() #returns a tuple
+    listing_id = select(conn, "id", "listing", url=current_url).fetchone()
     for item in current_neighborhoods:
-        neighborhood_id = conn.execute('SELECT id from neighborhood where name =(?)',(item,)).fetchone() # also returns a one item tuple
+        neighborhood_id = select(conn, "id", "neighborhood", name=item).fetchone()
         conn.execute('INSERT INTO list_to_neighborhood VALUES(?,?)', (listing_id[0], neighborhood_id[0]))
 
+
 def get_by_url(url):
-    return (conn.execute('SELECT * FROM listing WHERE url=(?)', (url,))).fetchall()
+    return select(conn, "*", "listing", url=url).fetchall()
 
 #loops through nabe list to check if any appear in the item
 def find_nabe(item):
     return [x for x in NEIGHBORHOOD_LIST if any(item.find(y) != -1 for y in [x, x.lower(), x.upper()])]
-
 
 def find_price(item):
     price = ''
@@ -101,7 +106,6 @@ def find_price(item):
             else:
                 price += item[i]
                 return price
-
 
 #clumsy function that slices twice, but little alternative because of messy CL XML where the
 #bedroom data isn't offset with a tag
