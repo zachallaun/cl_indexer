@@ -55,25 +55,23 @@ def pull_data(url=CL_URL):
 def parse_data(data):
     items = BeautifulSoup(data, 'xml').findAll('item')
     for item in items:
-        description = item.description.string
-        description = description.rstrip()
+        description = item.description.string.rstrip()
         title = item.title.string
         index = title.rfind('(')
         if index != -1: #error check if there is no parens for the neighborhood
             br_info = title[index:] #slice the string at the opening paren
             url = item.link.string
-            make_list(br_info, url, title, description)
+            make_listing(br_info, url, title, description)
 
-
-def make_list(item, url, title, description):
+def make_listing(item, url, title, description):
     if not (get_by_url(url)): #if the url doesn't exists in the db, we go forward
         sql_id = None
-        neighborhood = (find_nabe(item)) #have to cast to str for db commit
+        neighborhood = find_nabe(item) #have to cast to str for db commit
         price = find_price(item)
         bedrooms = find_bedrooms(item)
         now = datetime.datetime.now()
-        if (neighborhood != [] and price != [] and bedrooms != -1): #tossing incomplete data
-            print 'oh gosh inserting!'
+        if (neighborhood and price and bedrooms != -1): #tossing incomplete data
+            print "Inserting {}...".format(url)
             listing = (sql_id, url, price, bedrooms, title, description, now)
             conn.execute('INSERT INTO listing VALUES(?,?,?,?,?,?,?)', listing)
             insert_relation(url, neighborhood)
