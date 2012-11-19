@@ -131,13 +131,12 @@ def find_bedrooms(item):
         bedrooms = item[index -1]
         return bedrooms
 
-
-
-conn = sqlite3.connect('housing.db')
-cursor = conn.cursor()
-run_scheduler()
-conn.commit()
-conn.close()
+if __name__ == '__main__':
+    conn = sqlite3.connect('housing.db')
+    cursor = conn.cursor()
+    run_scheduler()
+    conn.commit()
+    conn.close()
 
 
 
