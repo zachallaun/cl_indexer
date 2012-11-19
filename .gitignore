@@ -5,3 +5,4 @@ test_db.db
 description_tester.py
 housing_key.pem
 .DS_Store
+venv
