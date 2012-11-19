@@ -45,32 +45,24 @@ CL_URL = 'http://newyork.craigslist.org/brk/aap/index.rss'
 
 def run_scheduler():
     print "Running craigslist scraper..."
-    write_data()
-    parse_data()
+    parse_data(pull_data())
 
-#pings the craigslist rss url, writes the data to a file
-#defaulted to the cl brooklyn url
-def write_data():
-    data = urllib2.urlopen(CL_URL)
-    with open('index.rss', 'wt') as outstream:
-        for line in data:
-            if line.find('<?xml version="1.0" encoding="iso-8859-1"?>') == -1:
-                outstream.write(line)
+def pull_data(url=CL_URL):
+    data = urllib2.urlopen(url)
+    xml_header = '<?xml version="1.0" encoding="iso-8859-1"?>'
+    return "".join(line for line in data if line.find(xml_header) == -1)
 
-
-def parse_data():
-    with open('index.rss', 'rt') as file:
-        read_string = file.read()
-        items = BeautifulSoup(read_string, 'xml').findAll('item')
-        for item in items:
-            description = item.description.string
-            description = description.rstrip()
-            title = item.title.string
-            index = title.rfind('(')
-            if index != -1: #error check if there is no parens for the neighborhood
-                br_info = title[index:] #slice the string at the opening paren
-                url = item.link.string
-                make_list(br_info, url, title, description)
+def parse_data(data):
+    items = BeautifulSoup(data, 'xml').findAll('item')
+    for item in items:
+        description = item.description.string
+        description = description.rstrip()
+        title = item.title.string
+        index = title.rfind('(')
+        if index != -1: #error check if there is no parens for the neighborhood
+            br_info = title[index:] #slice the string at the opening paren
+            url = item.link.string
+            make_list(br_info, url, title, description)
 
 
 def make_list(item, url, title, description):
