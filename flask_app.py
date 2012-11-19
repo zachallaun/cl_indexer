@@ -29,19 +29,19 @@ def front_page():
 	return render_template('layout.html')
 	#show front page - map of how to get different entries
 
-@app.route('/neighborhoods', methods = ['GET'])
+@app.route('/neighborhoods')
 def show_neighborhoods():
-	
+	return render_template('neighborhood_list.html')
 	#show a list of neighborhoods
 
 @app.route('/bedrooms', methods = ['GET'])
 def show_bedrooms():
-	pass
+	return render_template('bedrooms_list.html')
 	#show bedrooms options
 
 @app.route('/prices', methods=['GET'])
 def show_prices():
-	pass
+	return render_template('price_options.html')
 	#show price options
 
 if __name__ == '__main__':
