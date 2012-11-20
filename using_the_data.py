@@ -13,6 +13,17 @@ def query(command_fn):
         return self.conn.execute(command_fn(self), args).fetchall()
     return run_query
 
+
+class sqlite_row_factory(object):
+    def __init__(self, conn):
+        self.conn = conn
+        self._orig = self.conn.row_factory
+    def __enter__(self):
+        self.conn.row_factory = sqlite3.Row
+    def __exit__(self, type, value, traceback):
+        self.conn.row_factory = self._orig
+
+
 class QueryEngine():
 
     def __init__(self, db_name='housing.db'):
@@ -69,15 +80,13 @@ class QueryEngine():
                          AND neighborhood.name = (?)""", True)
 
     def get_br_by_neighborhood(self, input_brs, input_hood):
-        with self.conn:
-            self.conn.row_factory = sqlite3.Row
+        with sqlite_row_factory(self.conn):
             rows = self.get_by_neighborhood(input_hood)
             bedroom_dict = defaultdict(int)
             bedroom_dict = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0}
 
     def avg_price_by_hood(self, input_hood):
-        with self.conn:
-            self.conn.row_factory = sqlite3.Row
+        with sqlite_row_factory(self.conn):
             rows = self.get_by_neighborhood(input_hood)
             prices = num_listings = 0
             for row in rows:
@@ -87,8 +96,7 @@ class QueryEngine():
         return prices, num_listings, avg
 
     def avg_bedrooms_by_hood(self, input_hood):
-        with self.conn:
-            self.conn.row_factory = sqlite3.Row
+        with sqlite_row_factory(self.conn):
             rows = self.get_by_neighborhood(input_hood)
             bedroom_dict = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0}
             bedroom_list = [row['bedrooms'] for row in rows if row['bedrooms'] != '']
@@ -97,8 +105,7 @@ class QueryEngine():
         return bedroom_dict
 
     def price_bedroom_by_hood(self, input_hood):
-        with self.conn:
-            self.conn.row_factory = sqlite3.Row
+        with sqlite_row_factory(self.conn):
             rows = self.get_by_neighborhood(input_hood)
             total = num_bedrooms = 0
             for row in rows:
