@@ -95,19 +95,20 @@ def get_by_url(url):
 def find_nabe(item):
     return [x for x in NEIGHBORHOOD_LIST if any(item.find(y) != -1 for y in [x, x.lower(), x.upper()])]
 
+def take_while(fn, sequence):
+    """Returns a generater that yields items from the given sequence until
+    fn(item) returns a falsey value."""
+    for element in sequence:
+        if fn(element):
+            yield element
+        else:
+            break
+
 def find_price(item):
-    price = ''
     index = item.rfind('$')
     if index != -1:
         item = item[index + 1:]
-        for i in range(5):
-            if i >= len(item):
-                break
-            elif not(item[i].isdigit()):
-                break
-            else:
-                price += item[i]
-    return price
+        return "".join(take_while(lambda x: x.isdigit(), item))
 
 #clumsy function that slices twice, but little alternative because of messy CL XML where the
 #bedroom data isn't offset with a tag
