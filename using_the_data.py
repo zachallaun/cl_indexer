@@ -6,58 +6,67 @@ from collections import defaultdict
 def sqlstr(command, verbose=False):
     return command.replace("\n", " ") if verbose else command
 
+def query(command_fn):
+    """Decorator. Returns a function to execute a query on a database.
+    Expects command_fn to return a query string."""
+    def run_query(self, *args):
+        return self.conn.execute(command_fn(self), args).fetchall()
+    return run_query
+
 class db_access():
 
     def __init__(self, db_name='housing.db'):
         self.conn = sqlite3.connect(db_name)
 
-    def get_by_bedrooms(self, input_brs):
-        command = sqlstr('SELECT * FROM listing where bedrooms=(?)', True)
-        return self.conn.execute(command, (input_brs,)).fetchall()
+    @query
+    def get_by_bedrooms(self):
+        "Expects a number of bedrooms."
+        return sqlstr('SELECT * FROM listing where bedrooms=(?)', True)
 
-    def get_by_neighborhood(self, input_hood):
-        command = sqlstr("""SELECT listing.price, listing.title,
-                                   listing.bedrooms, neighborhood.name
-                            FROM listing, list_to_neighborhood, neighborhood
-                            WHERE listing.id = list_to_neighborhood.listing_id
-                            AND neighborhood.id = list_to_neighborhood.neighborhood_id
-                            AND neighborhood.name = (?)""", True)
-        items = self.conn.execute(command, (input_hood,)).fetchall()
-        return items
+    @query
+    def get_by_neighborhood(self):
+        "Expects a neighborhood."
+        return sqlstr("""SELECT listing.price, listing.title,
+                                listing.bedrooms, neighborhood.name
+                         FROM listing, list_to_neighborhood, neighborhood
+                         WHERE listing.id = list_to_neighborhood.listing_id
+                         AND neighborhood.id = list_to_neighborhood.neighborhood_id
+                         AND neighborhood.name = (?)""", True)
 
-    def get_by_max_price(self, max_price):
-        command = sqlstr("""SELECT listing.url, listing.price,
-                                   neighborhood.name
-                            FROM listing, list_to_neighborhood, neighborhood
-                            WHERE listing.id = list_to_neighborhood.listing_id
-                            AND neighborhood.id = list_to_neighborhood.neighborhood_id
-                            AND listing.price<(?)""", True)
-        items = self.conn.execute(command, (max_price,)).fetchall()
-        return items
+    @query
+    def get_by_max_price(self):
+        "Expects a max price."
+        return sqlstr("""SELECT listing.url, listing.price,
+                                neighborhood.name
+                         FROM listing, list_to_neighborhood, neighborhood
+                         WHERE listing.id = list_to_neighborhood.listing_id
+                         AND neighborhood.id = list_to_neighborhood.neighborhood_id
+                         AND listing.price<(?)""", True)
 
-    def get_by_min_price(self, min_price):
-        command = sqlstr("""SELECT listing.url, listing.price, neighborhood.name
-                            FROM listing, list_to_neighborhood, neighborhood
-                            WHERE listing.id = list_to_neighborhood.listing_id
-                            AND neighborhood.id = list_to_neighborhood.neighborhood_id
-                            AND listing.price>(?)""")
-        items = self.conn.execute(command, (min_price,)).fetchall()
-        return items
+    @query
+    def get_by_min_price(self):
+        "Expects a min price."
+        return sqlstr("""SELECT listing.url, listing.price, neighborhood.name
+                         FROM listing, list_to_neighborhood, neighborhood
+                         WHERE listing.id = list_to_neighborhood.listing_id
+                         AND neighborhood.id = list_to_neighborhood.neighborhood_id
+                         AND listing.price>(?)""", True)
 
     #not working yet
-    def get_by_keyword(self, word):
-        items = self.conn.execute('SELECT * FROM listing where listing.description LIKE % ? %', (word,)).fetchall()
-        return items
+    @query
+    def get_by_keyword(self):
+        "Expects a keyword."
+        return sqlstr('SELECT * FROM listing where listing.description LIKE % ? %')
 
-    def get_price_by_neighborhood(self, price, input_hood):
-        command = sqlstr("""SELECT listing.url, listing.price, neighborhood.name
-                            FROM listing, list_to_neighborhood, neighborhood
-                            WHERE listing.price < (?)
-                            AND listing.id = list_to_neighborhood.listing_id
-                            AND neighborhood.id = list_to_neighborhood.neighborhood_id
-                            AND neighborhood.name = (?)""")
-        items = self.conn.execute(command, (price, input_hood)).fetchall()
-        return items
+    @query
+    def get_price_by_neighborhood(self):
+        "Expects a price and neighborhood"
+        return sqlstr("""SELECT listing.url, listing.price, neighborhood.name
+                         FROM listing, list_to_neighborhood, neighborhood
+                         WHERE listing.price < (?)
+                         AND listing.id = list_to_neighborhood.listing_id
+                         AND neighborhood.id = list_to_neighborhood.neighborhood_id
+                         AND neighborhood.name = (?)""", True)
 
     def get_br_by_neighborhood(self, input_brs, input_hood):
         #items = conn.execute('SELECT listing.url, listing.price, listing.bedrooms, neighborhood.name from listing, list_to_neighborhood, neighborhood WHERE listing.bedrooms = (?) AND listing.id = list_to_neighborhood.listing_id AND neighborhood.id = list_to_neighborhood.neighborhood_id AND neighborhood.name = (?)', (input_brs, input_hood)).fetchall()
