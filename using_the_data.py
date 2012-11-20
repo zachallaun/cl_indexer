@@ -105,7 +105,7 @@ class QueryEngine():
                 if row['bedrooms'] != '':
                     total += row['price']
                     num_bedrooms += int(row['bedrooms'])
-                    return total / num_bedrooms, input_hood
+                    return total / num_bedrooms
 
     def close(self):
         self.conn.close()
