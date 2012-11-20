@@ -3,24 +3,45 @@ import sqlite3
 from collections import defaultdict
 
 
+def sqlstr(command, verbose=False):
+    return command.replace("\n", " ") if verbose else command
+
 class db_access():
 
     def __init__(self, db_name='housing.db'):
         self.conn = sqlite3.connect(db_name)
 
     def get_by_bedrooms(self, input_brs):
-        return self.conn.execute('SELECT * FROM listing where bedrooms=(?)', (input_brs,)).fetchall()
+        command = sqlstr('SELECT * FROM listing where bedrooms=(?)', True)
+        return self.conn.execute(command, (input_brs,)).fetchall()
 
     def get_by_neighborhood(self, input_hood):
-        items = self.conn.execute('SELECT listing.price, listing.title, listing.bedrooms, neighborhood.name FROM listing, list_to_neighborhood, neighborhood WHERE listing.id = list_to_neighborhood.listing_id AND neighborhood.id = list_to_neighborhood.neighborhood_id AND neighborhood.name = (?)', (input_hood,)).fetchall()
+        command = sqlstr("""SELECT listing.price, listing.title,
+                                   listing.bedrooms, neighborhood.name
+                            FROM listing, list_to_neighborhood, neighborhood
+                            WHERE listing.id = list_to_neighborhood.listing_id
+                            AND neighborhood.id = list_to_neighborhood.neighborhood_id
+                            AND neighborhood.name = (?)""", True)
+        items = self.conn.execute(command, (input_hood,)).fetchall()
         return items
 
     def get_by_max_price(self, max_price):
-        items = self.conn.execute('SELECT listing.url, listing.price, neighborhood.name FROM listing, list_to_neighborhood, neighborhood WHERE listing.id = list_to_neighborhood.listing_id AND neighborhood.id = list_to_neighborhood.neighborhood_id AND listing.price<(?)', (max_price,)).fetchall()
+        command = sqlstr("""SELECT listing.url, listing.price,
+                                   neighborhood.name
+                            FROM listing, list_to_neighborhood, neighborhood
+                            WHERE listing.id = list_to_neighborhood.listing_id
+                            AND neighborhood.id = list_to_neighborhood.neighborhood_id
+                            AND listing.price<(?)""", True)
+        items = self.conn.execute(command, (max_price,)).fetchall()
         return items
 
     def get_by_min_price(self, min_price):
-        items = self.conn.execute('SELECT listing.url, listing.price, neighborhood.name FROM listing, list_to_neighborhood, neighborhood WHERE listing.id = list_to_neighborhood.listing_id AND neighborhood.id = list_to_neighborhood.neighborhood_id AND listing.price>(?)', (min_price,)).fetchall()
+        command = sqlstr("""SELECT listing.url, listing.price, neighborhood.name
+                            FROM listing, list_to_neighborhood, neighborhood
+                            WHERE listing.id = list_to_neighborhood.listing_id
+                            AND neighborhood.id = list_to_neighborhood.neighborhood_id
+                            AND listing.price>(?)""")
+        items = self.conn.execute(command, (min_price,)).fetchall()
         return items
 
     #not working yet
@@ -29,7 +50,13 @@ class db_access():
         return items
 
     def get_price_by_neighborhood(self, price, input_hood):
-        items = self.conn.execute('SELECT listing.url, listing.price, neighborhood.name from listing, list_to_neighborhood, neighborhood WHERE listing.price < (?) AND listing.id = list_to_neighborhood.listing_id AND neighborhood.id = list_to_neighborhood.neighborhood_id AND neighborhood.name = (?)', (price, input_hood)).fetchall()
+        command = sqlstr("""SELECT listing.url, listing.price, neighborhood.name
+                            FROM listing, list_to_neighborhood, neighborhood
+                            WHERE listing.price < (?)
+                            AND listing.id = list_to_neighborhood.listing_id
+                            AND neighborhood.id = list_to_neighborhood.neighborhood_id
+                            AND neighborhood.name = (?)""")
+        items = self.conn.execute(command, (price, input_hood)).fetchall()
         return items
 
     def get_br_by_neighborhood(self, input_brs, input_hood):
