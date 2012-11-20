@@ -62,8 +62,7 @@ def pull_data(url=CL_URL):
     return "".join(line for line in data if line.find(xml_header) == -1)
 
 def parse_data(data):
-    items = BeautifulSoup(data, 'xml').findAll('item')
-    for item in items:
+    for item in BeautifulSoup(data, 'xml').findAll('item'):
         description = item.description.string.rstrip()
         title = item.title.string
         index = title.rfind('(')
@@ -89,7 +88,6 @@ def insert_relation(current_url, current_neighborhoods):
         neighborhood_id = select(conn, "id", "neighborhood", name=item).fetchone()
         insert(conn, "list_to_neighborhood", (listing_id[0], neighborhood_id[0]))
 
-
 def get_by_url(url):
     return select(conn, "*", "listing", url=url).fetchall()
 
@@ -109,7 +107,7 @@ def find_price(item):
                 break
             else:
                 price += item[i]
-                return price
+    return price
 
 #clumsy function that slices twice, but little alternative because of messy CL XML where the
 #bedroom data isn't offset with a tag
@@ -120,7 +118,7 @@ def find_bedrooms(item):
     index = item.find('bd')
     if index != -1:
         bedrooms = item[index -1]
-        return bedrooms
+    return bedrooms
 
 if __name__ == '__main__':
     conn = sqlite3.connect('housing.db')
