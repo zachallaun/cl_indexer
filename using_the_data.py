@@ -25,7 +25,7 @@ class QueryEngine():
 
     @query
     def get_by_neighborhood(self):
-        "Expects a neighborhood."
+        "Expects a neighborhood name."
         return sqlstr("""SELECT listing.price, listing.title,
                                 listing.bedrooms, neighborhood.name
                          FROM listing, list_to_neighborhood, neighborhood
@@ -35,7 +35,7 @@ class QueryEngine():
 
     @query
     def get_by_max_price(self):
-        "Expects a max price."
+        "Expects a max listing price."
         return sqlstr("""SELECT listing.url, listing.price,
                                 neighborhood.name
                          FROM listing, list_to_neighborhood, neighborhood
@@ -45,7 +45,7 @@ class QueryEngine():
 
     @query
     def get_by_min_price(self):
-        "Expects a min price."
+        "Expects a min listing price."
         return sqlstr("""SELECT listing.url, listing.price, neighborhood.name
                          FROM listing, list_to_neighborhood, neighborhood
                          WHERE listing.id = list_to_neighborhood.listing_id
@@ -60,7 +60,7 @@ class QueryEngine():
 
     @query
     def get_price_by_neighborhood(self):
-        "Expects a price and neighborhood"
+        "Expects a max listing price and neighborhood name."
         return sqlstr("""SELECT listing.url, listing.price, neighborhood.name
                          FROM listing, list_to_neighborhood, neighborhood
                          WHERE listing.price < (?)
