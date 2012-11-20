@@ -109,17 +109,17 @@ def find_price(item):
     if index != -1:
         item = item[index + 1:]
         return "".join(take_while(lambda x: x.isdigit(), item))
+    else:
+        return None
 
 #clumsy function that slices twice, but little alternative because of messy CL XML where the
 #bedroom data isn't offset with a tag
 def find_bedrooms(item):
-    bedrooms = ''
-    index = item.rfind('$') #rfind to find the last $
-    item = item[index:]
-    index = item.find('bd')
+    index = item.rfind('bd')
     if index != -1:
-        bedrooms = item[index -1]
-    return bedrooms
+        return item[index -1]
+    else:
+        return None
 
 if __name__ == '__main__':
     conn = sqlite3.connect('housing.db')
