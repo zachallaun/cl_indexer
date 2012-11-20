@@ -13,7 +13,7 @@ def query(command_fn):
         return self.conn.execute(command_fn(self), args).fetchall()
     return run_query
 
-class db_access():
+class QueryEngine():
 
     def __init__(self, db_name='housing.db'):
         self.conn = sqlite3.connect(db_name)
