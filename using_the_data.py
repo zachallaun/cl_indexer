@@ -3,8 +3,8 @@ import sqlite3
 from collections import defaultdict
 
 
-def sqlstr(command, verbose=False):
-    return command.replace("\n", " ") if verbose else command
+def sqlstr(command):
+    return command.replace("\n", " ")
 
 def query(command_fn):
     """Decorator. Returns a function to execute a query on a database.
@@ -32,7 +32,7 @@ class QueryEngine():
     @query
     def get_by_bedrooms(self):
         "Expects a number of bedrooms."
-        return sqlstr('SELECT * FROM listing where bedrooms=(?)', True)
+        return sqlstr('SELECT * FROM listing where bedrooms=(?)')
 
     @query
     def get_by_neighborhood(self):
@@ -42,7 +42,7 @@ class QueryEngine():
                          FROM listing, list_to_neighborhood, neighborhood
                          WHERE listing.id = list_to_neighborhood.listing_id
                          AND neighborhood.id = list_to_neighborhood.neighborhood_id
-                         AND neighborhood.name = (?)""", True)
+                         AND neighborhood.name = (?)""")
 
     @query
     def get_by_max_price(self):
@@ -52,7 +52,7 @@ class QueryEngine():
                          FROM listing, list_to_neighborhood, neighborhood
                          WHERE listing.id = list_to_neighborhood.listing_id
                          AND neighborhood.id = list_to_neighborhood.neighborhood_id
-                         AND listing.price<(?)""", True)
+                         AND listing.price<(?)""")
 
     @query
     def get_by_min_price(self):
@@ -61,7 +61,7 @@ class QueryEngine():
                          FROM listing, list_to_neighborhood, neighborhood
                          WHERE listing.id = list_to_neighborhood.listing_id
                          AND neighborhood.id = list_to_neighborhood.neighborhood_id
-                         AND listing.price>(?)""", True)
+                         AND listing.price>(?)""")
 
     #not working yet
     @query
@@ -77,7 +77,7 @@ class QueryEngine():
                          WHERE listing.price < (?)
                          AND listing.id = list_to_neighborhood.listing_id
                          AND neighborhood.id = list_to_neighborhood.neighborhood_id
-                         AND neighborhood.name = (?)""", True)
+                         AND neighborhood.name = (?)""")
 
     def get_br_by_neighborhood(self, input_brs, input_hood):
         with sqlite_row_factory(self.conn):
