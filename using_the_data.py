@@ -69,10 +69,7 @@ class QueryEngine():
                          AND neighborhood.name = (?)""", True)
 
     def get_br_by_neighborhood(self, input_brs, input_hood):
-        #items = conn.execute('SELECT listing.url, listing.price, listing.bedrooms, neighborhood.name from listing, list_to_neighborhood, neighborhood WHERE listing.bedrooms = (?) AND listing.id = list_to_neighborhood.listing_id AND neighborhood.id = list_to_neighborhood.neighborhood_id AND neighborhood.name = (?)', (input_brs, input_hood)).fetchall()
-        #return items
         with self.conn:
-            #row factory selects a dictionary return value instead of tuples
             self.conn.row_factory = sqlite3.Row
             rows = self.get_by_neighborhood(input_hood)
             bedroom_dict = defaultdict(int)
@@ -80,7 +77,6 @@ class QueryEngine():
 
     def avg_price_by_hood(self, input_hood):
         with self.conn:
-            #row factory selects a dictionary return value instead of tuples
             self.conn.row_factory = sqlite3.Row
             rows = self.get_by_neighborhood(input_hood)
             prices = num_listings = 0
@@ -92,7 +88,6 @@ class QueryEngine():
 
     def avg_bedrooms_by_hood(self, input_hood):
         with self.conn:
-            #row factory selects a dictionary return value instead of tuples
             self.conn.row_factory = sqlite3.Row
             rows = self.get_by_neighborhood(input_hood)
             bedroom_dict = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0}
@@ -103,7 +98,6 @@ class QueryEngine():
 
     def price_bedroom_by_hood(self, input_hood):
         with self.conn:
-            #row factory selects a dict return value instead of tuples
             self.conn.row_factory = sqlite3.Row
             rows = self.get_by_neighborhood(input_hood)
             total = num_bedrooms = 0
